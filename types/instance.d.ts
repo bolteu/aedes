@@ -57,6 +57,7 @@ declare module 'aedes' {
     authorizeSubscribe?: AuthorizeSubscribeHandler
     authorizeForward?: AuthorizeForwardHandler
     published?: PublishedHandler
+    sharedTopicsEnabled?: boolean
   }
 
   export default class Aedes extends EventEmitter {
@@ -64,6 +65,7 @@ declare module 'aedes' {
     connectedClients: Readonly<number>
     closed: Readonly<boolean>
     brokers: Readonly<Brokers>
+    persistence: any
 
     constructor(option?: AedesOptions)
     handle: (stream: Connection, request: IncomingMessage) => Client

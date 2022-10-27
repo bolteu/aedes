@@ -12,6 +12,7 @@ const memory = require('aedes-persistence')
 const mqemitter = require('mqemitter')
 const Client = require('./lib/client')
 const { $SYS_PREFIX, bulk } = require('./lib/utils')
+const _ = require('lodash')
 
 module.exports = Aedes.Server = Aedes
 
@@ -27,6 +28,7 @@ const defaultOptions = {
   authorizeForward: defaultAuthorizeForward,
   published: defaultPublished,
   trustProxy: false,
+  sharedTopicsEnabled: false,
   trustedProxies: [],
   queueLimit: 42,
   maxClientsIdLength: 23
@@ -75,6 +77,7 @@ function Aedes (opts) {
   this.trustProxy = opts.trustProxy
   this.trustedProxies = opts.trustedProxies
 
+  this.sharedTopicsEnabled = opts.sharedTopicsEnabled
   this.clients = {}
   this.brokers = {}
 
@@ -194,6 +197,40 @@ function emitPacket (packet, done) {
   this.broker.mq.emit(packet, done)
 }
 
+function emitShared (packet, done) {
+  if (!this.broker.sharedTopicsEnabled || packet.topic.startsWith($SYS_PREFIX)) {
+    return done()
+  }
+
+  this.broker.persistence.getSharedTopics(packet.topic, (err, topics) => {
+    if (err) {
+      return done(err)
+    }
+
+    if (!topics) {
+      return done()
+    }
+    const sendPacketToSharedClient = []
+    for (const topic of topics) {
+      const newPacket = _.cloneDeep(packet)
+      newPacket.topic = topic
+      sendPacketToSharedClient.push(emitPacket.bind(new PublishState(this.broker, this.client, newPacket), newPacket))
+    }
+
+    let i = 0
+    const length = sendPacketToSharedClient.length
+    function executeSequentially () {
+      if (i < length) {
+        sendPacketToSharedClient[i++](executeSequentially)
+      } else {
+        done()
+      }
+    }
+
+    executeSequentially()
+  })
+}
+
 function enqueueOffline (packet, done) {
   const enqueuer = this.broker._enqueuers.get()
 
@@ -258,12 +295,14 @@ function callPublished (_, done) {
 const publishFuncsSimple = [
   storeRetained,
   emitPacket,
+  emitShared,
   callPublished
 ]
 const publishFuncsQoS = [
   storeRetained,
   enqueueOffline,
   emitPacket,
+  emitShared,
   callPublished
 ]
 Aedes.prototype.publish = function (packet, client, done) {
