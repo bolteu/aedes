@@ -360,6 +360,19 @@ function closeClient (client, cb) {
   this.clients[client].close(cb)
 }
 
+Aedes.prototype.disconnectClient = function (cb) {
+  if (this.closed || this.connectedClients === 0) {
+    return cb()
+  }
+
+  for (const client in this.clients) {
+    // Disconnecting first client from the Object clients. Should be the oldest connected client
+    if (Object.prototype.hasOwnProperty.call(this.clients, client)) {
+      return this.clients[client].close(cb)
+    }
+  }
+}
+
 Aedes.prototype.close = function (cb = noop) {
   const that = this
   if (this.closed) {
