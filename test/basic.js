@@ -511,16 +511,19 @@ test('broker can disconnect even without clients', function (t) {
 })
 
 test('broker can disconnect client', function (t) {
-  t.plan(3)
+  t.plan(4)
 
   const broker = aedes()
   const client1 = noError(connect(setup(broker), {
+    clientId: 'client_id_1'
   }, function () {
     const client2 = noError(connect(setup(broker), {
+      clientId: 'client_id_2'
     }, function () {
       t.equal(broker.connectedClients, 2, '2 connected clients')
       eos(client1.conn, t.pass.bind(t, 'client 1 closes'))
-      broker.disconnectClient(function () {
+      broker.disconnectClient(function (clientId) {
+        t.equal('client_id_1', clientId)
         t.equal(broker.connectedClients, 1, '1 connected client')
         broker.close(function () {
           eos(client2.conn, t.pass.bind(t, 'client 2 closes'))
