@@ -84,6 +84,7 @@ declare module 'aedes' {
     subscribe (topic: string, deliverfunc: (packet: AedesPublishPacket, callback: () => void) => void, callback: () => void): void
     unsubscribe (topic: string, deliverfunc: (packet: AedesPublishPacket, callback: () => void) => void, callback: () => void): void
     close (callback?: () => void): void
+    disconnectClient (callback: () => void): void
 
     preConnect: PreConnectHandler
     authenticate: AuthenticateHandler

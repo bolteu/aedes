@@ -498,6 +498,38 @@ test('broker closes gracefully', function (t) {
   }))
 })
 
+test('broker can disconnect even without clients', function (t) {
+  t.plan(2)
+
+  const broker = aedes()
+  broker.disconnectClient(function () {
+    t.equal(broker.connectedClients, 0, 'Still 0 connected client')
+    broker.close(function (err) {
+      t.error(err, 'no error')
+    })
+  })
+})
+
+test('broker can disconnect client', function (t) {
+  t.plan(3)
+
+  const broker = aedes()
+  const client1 = noError(connect(setup(broker), {
+  }, function () {
+    const client2 = noError(connect(setup(broker), {
+    }, function () {
+      t.equal(broker.connectedClients, 2, '2 connected clients')
+      eos(client1.conn, t.pass.bind(t, 'client 1 closes'))
+      broker.disconnectClient(function () {
+        t.equal(broker.connectedClients, 1, '1 connected client')
+        broker.close(function () {
+          eos(client2.conn, t.pass.bind(t, 'client 2 closes'))
+        })
+      })
+    }))
+  }))
+})
+
 test('testing other event', function (t) {
   t.plan(1)
 
