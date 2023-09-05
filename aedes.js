@@ -368,7 +368,9 @@ Aedes.prototype.disconnectClient = function (cb) {
   for (const client in this.clients) {
     // Disconnecting first client from the Object clients. Should be the oldest connected client
     if (Object.prototype.hasOwnProperty.call(this.clients, client)) {
-      return this.clients[client].close(cb)
+      return this.clients[client].close(() => {
+        cb(client)
+      })
     }
   }
 }
