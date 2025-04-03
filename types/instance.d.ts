@@ -91,6 +91,7 @@ export default class Aedes extends EventEmitter {
   connectedClients: Readonly<number>
   closed: Readonly<boolean>
   brokers: Readonly<Brokers>
+  persistence: any
 
   constructor(option?: AedesOptions);
   handle: (stream: Connection, request?: IncomingMessage) => Client
@@ -157,4 +158,6 @@ export default class Aedes extends EventEmitter {
   authorizeSubscribe: AuthorizeSubscribeHandler
   authorizeForward: AuthorizeForwardHandler
   published: PublishedHandler
+
+  disconnectClient(callback: (clientId: string) => void): void
 }
