@@ -18,6 +18,10 @@ export interface Brokers {
   [brokerId: string]: LastHearthbeatTimestamp;
 }
 
+export interface Clients {
+  [clientId: string]: Client;
+}
+
 export type Connection = Duplex | Socket;
 
 /* eslint no-unused-vars: 0 */
@@ -91,7 +95,8 @@ export default class Aedes extends EventEmitter {
   connectedClients: Readonly<number>
   closed: Readonly<boolean>
   brokers: Readonly<Brokers>
-  persistence: any
+  persistence: Readonly<any>
+  clients: Readonly<Clients>
 
   constructor(option?: AedesOptions);
   handle: (stream: Connection, request?: IncomingMessage) => Client
