@@ -5,7 +5,7 @@ const aedes = require('../aedes')
 test('subscribe a single shared topic QoS 0', function (t) {
   t.plan(4)
 
-  const broker = new aedes.Server({ sharedTopicsEnabled: true })
+  const broker = aedes.createBroker({ sharedTopicsEnabled: true })
   const s = connect(setup(broker))
   t.teardown(s.broker.close.bind(s.broker))
 
@@ -35,7 +35,7 @@ test('subscribe a single shared topic QoS 0', function (t) {
 test('subscribe 2 clients to shared topic QoS 0', function (t) {
   t.plan(8)
 
-  const broker = new aedes.Server({ sharedTopicsEnabled: true })
+  const broker = aedes.createBroker({ sharedTopicsEnabled: true })
   const c1 = connect(setup(broker))
   t.teardown(c1.broker.close.bind(c1.broker))
 
@@ -73,7 +73,7 @@ test('subscribe 2 clients to shared topic QoS 0', function (t) {
 test('subscribe to shared wildcard topic QoS 0', function (t) {
   t.plan(5)
 
-  const broker = new aedes.Server({ sharedTopicsEnabled: true })
+  const broker = aedes.createBroker({ sharedTopicsEnabled: true })
   const s = connect(setup(broker))
   t.teardown(s.broker.close.bind(s.broker))
 
@@ -121,7 +121,7 @@ test('subscribe to shared wildcard topic QoS 0', function (t) {
 test('unsubscribe', function (t) {
   t.plan(5)
 
-  const broker = new aedes.Server({ sharedTopicsEnabled: true })
+  const broker = aedes.createBroker({ sharedTopicsEnabled: true })
   const s = connect(setup(broker))
   t.teardown(s.broker.close.bind(s.broker))
 
